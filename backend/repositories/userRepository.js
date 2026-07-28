@@ -1,6 +1,5 @@
 import { prisma } from "../config/database.js";
 async function createUser(data) {
-    console.log("from repository",data)
   return await prisma.user.create({
     data: {
       email: data.email,
