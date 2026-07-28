@@ -8,3 +8,5 @@ router.get("/health", (req, res, next) => {
     timestamp: new Date(),
   });
 });
+
+export default router;
