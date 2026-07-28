@@ -4,7 +4,7 @@ const router = express.Router();
 router.get("/health", (req, res, next) => {
   return res.json({
     status: "ok",
-    uptime: 1234,
+    uptime: process.uptime(),
     timestamp: new Date(),
   });
 });
