@@ -5,7 +5,8 @@ async function register(req, res) {
   const user = await authService.registerUser(data);
 
   return res.status(201).json({
-    message: "201 created",
+    success: true,
+    message: "User created successfully",
     user,
   });
 }
