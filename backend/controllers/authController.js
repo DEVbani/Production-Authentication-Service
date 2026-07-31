@@ -10,4 +10,13 @@ async function register(req, res) {
     user,
   });
 }
-export { register };
+async function login(req, res) {
+  const { email, password } = req.body;
+  const tokens = await authService.fetchUser(email, password);
+
+  return res.status(200).json({
+    success: true,
+    ...tokens,
+  });
+}
+export { register, login };

@@ -21,3 +21,13 @@ export const registerValidator = [
     .isLength({ min: 2 })
     .withMessage("Name field cannot be empty"),
 ];
+
+export const loginValidator = [
+  body("email")
+    .trim()
+    .notEmpty()
+    .normalizeEmail()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Not a valid email"),
+];
