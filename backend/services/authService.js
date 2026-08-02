@@ -65,9 +65,14 @@ async function refreshAccessToken(refreshToken) {
   }
   //4. once this is also matched then generate new access token
   const newAccessToken = userToken.generateAccessToken(userDecodedPayload);
-  //5. return this new access token
+  //5. genereate new refresh token also:
+  const newRefreshToken = userToken.generateRefreshToken(userDecodedPayload);
+  //6.store the newRefresh token in redis
+  await storeSession(newRefreshToken,userDecodedPayload.id);
+  //7. return this new access token
   return {
     accessToken: newAccessToken,
+    refreshToken:newRefreshToken,
   };
 }
 

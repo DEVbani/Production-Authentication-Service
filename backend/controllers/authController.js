@@ -1,3 +1,4 @@
+import AppError from "../errors/AppError.js";
 import * as authService from "../services/authService.js";
 async function register(req, res) {
   const data = req.body;
@@ -12,28 +13,48 @@ async function register(req, res) {
 }
 async function login(req, res) {
   const { email, password } = req.body;
-  const tokens = await authService.fetchUser(email, password);
-
+  const result = await authService.fetchUser(email, password);
+  //set cookie
+  console.log(result.tokens.refreshToken);
+  res.cookie("refreshToken", result.tokens.refreshToken, {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
   return res.status(200).json({
     success: true,
-    ...tokens,
+    id: result.id,
+    email: result.email,
+    accessToken: result.tokens.accessToken,
   });
 }
 async function refresh(req, res) {
-  const { token } = req.body;
-
-  const session = await authService.refreshAccessToken(token);
-
+  const refreshToken = req.cookies.refreshToken;
+  if (!refreshToken) {
+    throw new AppError("Authentication required", 401);
+  }
+  const session = await authService.refreshAccessToken(refreshToken);
+  res.cookie("refreshToken", session.refreshToken, {
+    httpOnly: true,
+    secure: false,
+    sameSite: "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
   return res.status(200).json({
     success: true,
-    session,
+    accessToken: session.accessToken,
   });
 }
 
 async function logout(req, res) {
-  const { token } = req.body;
+  const refreshToken = req.cookies.refreshToken;
+  if (!refreshToken) {
+    throw new AppError("Authentication required", 401);
+  }
+  const user = await authService.logout(refreshToken);
 
-  const user = await authService.logout(token);
+  res.clearCookie("refreshToken");
 
   return res.status(200).json({
     success: true,
