@@ -1,7 +1,13 @@
 import * as userRepository from "../repositories/userRepository.js";
 import * as userHash from "../utils/hash.js";
 import * as userToken from "../utils/jwt.js";
+import {
+  storeRefreshToken,
+  getRefreshToken,
+  deleteRefreshToken,
+} from "../repositories/redisRepository.js";
 import AppError from "../errors/AppError.js";
+import { storeSession } from "./sessionService.js";
 
 async function registerUser(data) {
   const user = await userRepository.findUserByEmail(data.email);
@@ -24,7 +30,6 @@ async function registerUser(data) {
 
 async function fetchUser(email, password) {
   const user = await userRepository.findUserByEmail(email);
-
   if (!user) {
     throw new AppError("Invalid Email or Password", 401);
   }
@@ -36,15 +41,10 @@ async function fetchUser(email, password) {
   }
   //now the user is valid
   //generate tokens
-  const accessToken = userToken.generateAccessToken(
-    user.id,
-    user.email,
-  );
-  const refreshToken = userToken.generateRefreshToken(
-    user.id,
-    user.email,
-  );
-
+  const accessToken = userToken.generateAccessToken(user);
+  const refreshToken = userToken.generateRefreshToken(user);
+  //store refresh token in redis
+  await storeSession(refreshToken, user.id);
   return {
     id: user.id,
     email: user.email,
@@ -54,5 +54,32 @@ async function fetchUser(email, password) {
     },
   };
 }
+async function refreshAccessToken(refreshToken) {
+  //1. check if the given token is a real jwt token or not.
+  const userDecodedPayload = userToken.verfiyRefreshToken(refreshToken);
+  //2. once it checked it is a jwt token then
+  //3. the rt that is stored in redis is matched with this token
+  const storedToken = await getRefreshToken(userDecodedPayload.id);
+  if (refreshToken !== storedToken) {
+    throw new AppError("Authentication required", 401);
+  }
+  //4. once this is also matched then generate new access token
+  const newAccessToken = userToken.generateAccessToken(userDecodedPayload);
+  //5. return this new access token
+  return {
+    accessToken: newAccessToken,
+  };
+}
 
-export { registerUser, fetchUser };
+async function logout(refreshToken) {
+  //1. verify the jwt token
+  const userDecodedPayload = userToken.verfiyRefreshToken(refreshToken);
+  //2. from the decoded payload , get the user id
+  //3. delete the refresh:userId from redis
+  await deleteRefreshToken(userDecodedPayload.id);
+  //4. return success
+  return {
+    ...userDecodedPayload,
+  };
+}
+export { registerUser, fetchUser, refreshAccessToken, logout };

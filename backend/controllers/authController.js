@@ -19,4 +19,25 @@ async function login(req, res) {
     ...tokens,
   });
 }
-export { register, login };
+async function refresh(req, res) {
+  const { token } = req.body;
+
+  const session = await authService.refreshAccessToken(token);
+
+  return res.status(200).json({
+    success: true,
+    session,
+  });
+}
+
+async function logout(req, res) {
+  const { token } = req.body;
+
+  const user = await authService.logout(token);
+
+  return res.status(200).json({
+    success: true,
+    user,
+  });
+}
+export { register, login, refresh, logout };

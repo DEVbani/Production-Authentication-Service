@@ -13,4 +13,6 @@ router.post("/login", authController.login);
 router.get("/profile", authMiddleware, (req, res, next) => {
   return res.json(req.user);
 });
+router.post("/refresh", authController.refresh);
+router.post("/logout", authController.logout);
 export default router;
