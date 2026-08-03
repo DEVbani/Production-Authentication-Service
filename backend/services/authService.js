@@ -46,7 +46,7 @@ async function fetchUser(email, password) {
   const refreshToken = userToken.generateRefreshToken(user);
   //store refresh token in redis
   await storeSession(refreshToken, user.id);
-  
+
   return {
     id: user.id,
     email: user.email,
@@ -89,4 +89,5 @@ async function logout(refreshToken) {
     ...userDecodedPayload,
   };
 }
+
 export { registerUser, fetchUser, refreshAccessToken, logout };

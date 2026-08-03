@@ -3,7 +3,6 @@ import * as userToken from "../utils/jwt.js";
 import * as userRepo from "../repositories/userRepository.js";
 export async function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
-
   if (!authHeader || !authHeader.startsWith("Bearer")) {
     throw new AppError("Authentication Needed!", 401);
   }

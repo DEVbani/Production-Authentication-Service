@@ -1,0 +1,10 @@
+export const persmission = {
+  VIEW_USER: "VIEW_USER",
+  DELETE_USER: "DELETE_USER",
+  EDIT_USER: "EDIT_USER",
+  CREATE_USER: "CREATE_USER",
+
+  //for user
+  VIEW_PROFILE: "VIEW_PROFILE",
+  EDIT_PROFILE: "EDIT_PROFILE",
+};
