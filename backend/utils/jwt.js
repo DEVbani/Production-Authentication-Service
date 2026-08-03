@@ -7,6 +7,7 @@ function generateAccessToken(user) {
   const payLoad = {
     id: user.id,
     email: user.email,
+    role: user.role,
   };
   return jwt.sign(payLoad, process.env.JWT_ACCESS_SECRET, {
     expiresIn: process.env.JWT_ACCESS_EXPIRES_IN,
@@ -20,6 +21,7 @@ function generateRefreshToken(user) {
   const payLoad = {
     id: user.id,
     email: user.email,
+    role: user.role,
   };
   return jwt.sign(payLoad, process.env.JWT_REFRESH_SECRET, {
     expiresIn: process.env.JWT_REFRESH_EXPIRES_IN,

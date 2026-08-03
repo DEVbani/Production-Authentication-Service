@@ -1,6 +1,7 @@
 import AppError from "../errors/AppError.js";
 import * as userToken from "../utils/jwt.js";
-export function authMiddleware(req, res, next) {
+import * as userRepo from "../repositories/userRepository.js";
+export async function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer")) {
@@ -9,7 +10,17 @@ export function authMiddleware(req, res, next) {
 
   const token = authHeader.split(" ")[1];
 
-  req.user = userToken.verifyAccessToken(token);
+  const userDecodedPayload = userToken.verifyAccessToken(token);
+
+  const userId = userDecodedPayload.id;
+
+  const user = await userRepo.findUserById(userId);
+
+  if (!user) {
+    throw new AppError("User not found", 404);
+  }
+
+  req.user = user;
 
   next();
 }

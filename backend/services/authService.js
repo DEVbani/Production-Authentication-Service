@@ -24,6 +24,7 @@ async function registerUser(data) {
   return {
     id: createdUser.id,
     email: createdUser.email,
+    role:createdUser.role,
     createdAt: createdUser.createdAt,
   };
 }
@@ -45,6 +46,7 @@ async function fetchUser(email, password) {
   const refreshToken = userToken.generateRefreshToken(user);
   //store refresh token in redis
   await storeSession(refreshToken, user.id);
+  
   return {
     id: user.id,
     email: user.email,
