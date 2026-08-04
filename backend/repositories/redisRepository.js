@@ -1,9 +1,10 @@
 import { redisClient } from "../config/redis.js";
 import AppError from "../errors/AppError.js";
+import { AuthConfig } from "../config/authConfig.js";
 export async function storeRefreshToken(token, userId) {
   try {
     return await redisClient.set(`refresh:${userId}`, token, {
-      EX: 7 * 24 * 60 * 60,
+      EX: AuthConfig.refreshTokenTTL,
     });
   } catch {
     throw new AppError("Server error", 500);

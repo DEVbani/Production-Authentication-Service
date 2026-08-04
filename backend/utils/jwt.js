@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import AppError from "../errors/AppError.js";
+import { AuthConfig } from "../config/authConfig.js";
 dotenv.config();
 
 function generateAccessToken(user) {
@@ -10,7 +11,7 @@ function generateAccessToken(user) {
     role: user.role,
   };
   return jwt.sign(payLoad, process.env.JWT_ACCESS_SECRET, {
-    expiresIn: process.env.JWT_ACCESS_EXPIRES_IN,
+    expiresIn: AuthConfig.accessTokenExpiry,
     subject: String(user.id),
     audience: "web-app",
     issuer: "auth-service",
